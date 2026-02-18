@@ -32,7 +32,7 @@ spec:
           containers:
             - name: kruize-cron-create
               image: {{ $image }}
-              imagePullPolicy: IfNotPresent
+              imagePullPolicy: {{ .Values.kruize.image.pullPolicy }}
               volumeMounts:
                 - name: config-volume
                   mountPath: /etc/config
@@ -70,7 +70,7 @@ spec:
           containers:
             - name: kruize-cron-delete
               image: {{ $image }}
-              imagePullPolicy: IfNotPresent
+              imagePullPolicy: {{ .Values.kruize.image.pullPolicy }}
               volumeMounts:
                 - name: config-volume
                   mountPath: /etc/config

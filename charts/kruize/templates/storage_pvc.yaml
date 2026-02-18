@@ -10,7 +10,7 @@ metadata:
 spec:
   storageClassName: {{ .Values.db.pvc.storageClass | quote }}
   accessModes:
-    - ReadWriteMany
+     {{- toYaml .Values.db.pvc.accessModes | nindent 4 }}
   resources:
     requests:
       storage: {{ .Values.db.pvc.storageSize | quote }}

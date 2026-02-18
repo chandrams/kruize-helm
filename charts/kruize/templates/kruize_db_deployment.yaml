@@ -29,8 +29,10 @@ spec:
               value: {{ .Values.db.user | quote }}
             - name: POSTGRES_DB
               value: {{ printf "%s-%s" .Values.db.name $fullName | quote }}
+            {{- if .Values.db.pgData }}
             - name: PGDATA
-              value: /var/lib/pg_data
+              value: {{ .Values.db.pgData }}
+            {{- end }}
           {{- if or .Values.db.resources.requests.memory .Values.db.resources.requests.cpu .Values.db.resources.limits.memory .Values.db.resources.limits.cpu }}
           resources:
             {{- if or .Values.db.resources.requests.memory .Values.db.resources.requests.cpu }}
@@ -56,7 +58,7 @@ spec:
             - containerPort: {{ .Values.db.service.port }}
           volumeMounts:
             - name: kruize-db-storage
-              mountPath: /var/lib/pgsql/data
+              mountPath: {{ .Values.db.volumeMountPath }}
       volumes:
         - name: kruize-db-storage
           persistentVolumeClaim:

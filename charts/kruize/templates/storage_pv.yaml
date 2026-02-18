@@ -7,12 +7,16 @@ metadata:
   labels:
     type: local
     app: {{ $fullName }}-db
+    {{- include "kruize.labels" . | nindent 4 }}
 
 spec:
   storageClassName: {{ .Values.db.pvc.storageClass | quote }}
   capacity:
     storage: {{ .Values.db.pvc.storageSize | quote }}
   accessModes:
-    - ReadWriteMany
+    {{- toYaml .Values.db.pvc.accessModes | nindent 4 }}
+  {{- if .Values.db.pvc.reclaimPolicy }}
+  persistentVolumeReclaimPolicy: {{ .Values.db.pvc.reclaimPolicy }}
+  {{- end }}
   hostPath:
     path: {{ printf "%s/%s" .Values.db.pvc.hostPath $fullName | quote }}

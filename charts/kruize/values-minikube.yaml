@@ -1,0 +1,100 @@
+# Minikube-specific values for Kruize Helm Chart
+# This file overrides the default values.yaml for minikube deployments
+
+# Kruize Configuration
+kruize:
+  # Disable resource requests/limits for minikube
+  resources:
+    requests:
+      memory: ""
+      cpu: ""
+    limits:
+      memory: ""
+      cpu: ""
+  
+  config:
+    k8sType: "minikube"
+    
+    # Hibernate configuration - override only changed values
+    hibernate:
+      c3p0minsize: 2
+      c3p0maxsize: 5
+      c3p0maxstatements: 50
+    
+    # Datasource configuration for minikube (single prometheus instance)
+    datasource:
+      - name: "prometheus-1"
+        provider: "prometheus"
+        serviceName: "prometheus-k8s"
+        namespace: "monitoring"
+        url: ""
+        authentication:
+          type: ""
+          credentials:
+            tokenFilePath: ""
+  
+  env:
+    - name: LOGGING_LEVEL
+      value: "info"
+    - name: ROOT_LOGGING_LEVEL
+      value: "error"
+    - name: DB_CONFIG_FILE
+      value: "/etc/config/dbconfigjson"
+    - name: KRUIZE_CONFIG_FILE
+      value: "/etc/config/kruizeconfigjson"
+    - name: JAVA_TOOL_OPTIONS
+      value: "-XX:MaxRAMPercentage=80"
+    - name: KAFKA_BOOTSTRAP_SERVERS
+      value: "kruize-kafka-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
+    - name: KAFKA_TOPICS
+      value: "recommendations-topic,error-topic,summary-topic"
+    - name: KAFKA_RESPONSE_FILTER_INCLUDE
+      value: "summary"
+    - name: KAFKA_RESPONSE_FILTER_EXCLUDE
+      value: ""
+
+# Database Configuration
+db:
+  # Volume mount path for minikube
+  volumeMountPath: "/var/lib/postgresql/data"
+  # Disable PGDATA for minikube
+  pgData: ""
+  
+  # Disable resource requests/limits for minikube
+  resources:
+    requests:
+      memory: ""
+      cpu: ""
+    limits:
+      memory: ""
+      cpu: ""
+  
+  pvc:
+    storageSize: "1Gi"
+    hostPath: "/data/postgres"
+    storageClass: "manual"
+    accessModes:
+      - ReadWriteOnce
+    reclaimPolicy: "Retain"
+
+# RBAC Configuration
+rbac:
+  # Disable OpenShift-specific RBAC resources for minikube
+  create: false
+
+# Service Account Configuration
+serviceAccount:
+  # Use default service account in minikube
+  create: false
+  name: "default"
+
+# Network Policy Configuration
+networkPolicy:
+  # Enable network policy for minikube
+  enabled: true
+
+# Monitoring Configuration
+monitoring:
+  enabled: true
+  interval: 30s
+

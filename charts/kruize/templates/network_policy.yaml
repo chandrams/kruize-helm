@@ -1,0 +1,25 @@
+{{- if .Values.networkPolicy.enabled -}}
+{{- $fullName := include "kruize.fullname" . -}}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $fullName }}-to-prometheus
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kruize.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "kruize.selectorLabels" . | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: 9090
+{{- end }}

@@ -52,11 +52,25 @@ The following table lists the configurable parameters of the Kruize chart and th
 | `kruize.service.type` | Kruize service type | `NodePort` |
 | `kruize.service.port` | Kruize service port | `8080` |
 
+### Kruize Environment Variables
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `kruize.env[].LOGGING_LEVEL` | Logging level for Kruize | `info` |
+| `kruize.env[].ROOT_LOGGING_LEVEL` | Root logging level | `error` |
+| `kruize.env[].DB_CONFIG_FILE` | Path to database configuration file | `/etc/config/dbconfigjson` |
+| `kruize.env[].KRUIZE_CONFIG_FILE` | Path to Kruize configuration file | `/etc/config/kruizeconfigjson` |
+| `kruize.env[].JAVA_TOOL_OPTIONS` | Java tool options | `-XX:MaxRAMPercentage=80` |
+| `kruize.env[].KAFKA_BOOTSTRAP_SERVERS` | Kafka bootstrap servers | `kruize-kafka-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092` |
+| `kruize.env[].KAFKA_TOPICS` | Kafka topics | `recommendations-topic,error-topic,summary-topic` |
+| `kruize.env[].KAFKA_RESPONSE_FILTER_INCLUDE` | Kafka response filter include patterns | `experiments\|status\|apis\|recommendations\|response\|status_history` |
+| `kruize.env[].KAFKA_RESPONSE_FILTER_EXCLUDE` | Kafka response filter exclude patterns | `""` |
+
 ### Kruize Configuration Parameters
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `kruize.config.clusterType` | Type of cluster (kubernetes/openshift) | `kubernetes` |
+| `kruize.config.clusterType` | Type of cluster | `kubernetes` |
 | `kruize.config.k8sType` | Kubernetes distribution type | `openshift` |
 | `kruize.config.authType` | Authentication type | `""` |
 | `kruize.config.monitoringAgent` | Monitoring agent to use | `prometheus` |
@@ -86,6 +100,36 @@ The following table lists the configurable parameters of the Kruize chart and th
 | `kruize.config.hibernate.showsql` | Show SQL queries | `false` |
 | `kruize.config.hibernate.timezone` | Database timezone | `UTC` |
 
+### Kruize Logging Configuration
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `kruize.config.logging.cloudwatch.accessKeyId` | AWS CloudWatch access key ID | `""` |
+| `kruize.config.logging.cloudwatch.logGroup` | CloudWatch log group | `kruize-logs` |
+| `kruize.config.logging.cloudwatch.logStream` | CloudWatch log stream | `kruize-stream` |
+| `kruize.config.logging.cloudwatch.region` | AWS region for CloudWatch | `""` |
+| `kruize.config.logging.cloudwatch.secretAccessKey` | AWS CloudWatch secret access key | `""` |
+| `kruize.config.logging.cloudwatch.logLevel` | CloudWatch log level | `INFO` |
+
+### Kruize Datasource Configuration
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `kruize.config.datasource[0].name` | Name of the first datasource | `prometheus-1` |
+| `kruize.config.datasource[0].provider` | Provider type | `prometheus` |
+| `kruize.config.datasource[0].serviceName` | Service name | `prometheus-k8s` |
+| `kruize.config.datasource[0].namespace` | Namespace | `openshift-monitoring` |
+| `kruize.config.datasource[0].url` | Datasource URL | `""` |
+| `kruize.config.datasource[0].authentication.type` | Authentication type | `bearer` |
+| `kruize.config.datasource[0].authentication.credentials.tokenFilePath` | Token file path | `/var/run/secrets/kubernetes.io/serviceaccount/token` |
+| `kruize.config.datasource[1].name` | Name of the second datasource | `thanos-1` |
+| `kruize.config.datasource[1].provider` | Provider type | `prometheus` |
+| `kruize.config.datasource[1].serviceName` | Service name | `thanos-querier` |
+| `kruize.config.datasource[1].namespace` | Namespace | `openshift-monitoring` |
+| `kruize.config.datasource[1].url` | Datasource URL | `""` |
+| `kruize.config.datasource[1].authentication.type` | Authentication type | `bearer` |
+| `kruize.config.datasource[1].authentication.credentials.tokenFilePath` | Token file path | `/var/run/secrets/kubernetes.io/serviceaccount/token` |
+
 ### Kruize Database Parameters
 
 | Parameter | Description | Default |
@@ -103,6 +147,9 @@ The following table lists the configurable parameters of the Kruize chart and th
 | `db.pvc.storageClass` | Storage class for database PVC | `manual` |
 | `db.pvc.storageSize` | Storage size for database PVC | `500Mi` |
 | `db.pvc.hostPath` | Host path for database storage | `/mnt/data` |
+| `db.pvc.accessModes` | Access modes for PVC | `[ReadWriteMany]` |
+| `db.volumeMountPath` | Volume mount path for database data | `/var/lib/pgsql/data` |
+| `db.pgData` | PGDATA environment variable value | `/var/lib/pg_data` |
 | `db.user` | User for Kruize DB container | `admin` |
 | `db.password` | Password for Kruize DB container | `admin` |
 | `db.adminUser` | Admin user for Kruize DB container | `admin` |
@@ -143,6 +190,7 @@ The following table lists the configurable parameters of the Kruize chart and th
 | `rbac.create` | Specifies whether OpenShift-specific RBAC resources should be created | `true` |
 | `nameOverride` | Overrides the name of this Chart | `""` |
 | `fullnameOverride` | Overrides the fully qualified application name | `""` |
+| `networkPolicy.enabled` | Enable NetworkPolicy resources | `false` |
 
 ## Example: Custom Values
 

@@ -141,6 +141,8 @@ db:
     storageClass: manual
     storageSize: "500Mi"
     hostPath: "/mnt/data"
+    accessModes:
+      - ReadWriteMany
   ## @param db.user User for Kruize DB container
   user: admin
   ## @param db.password User for Kruize DB container
@@ -151,6 +153,10 @@ db:
   adminPassword: admin
   ## @param db.name Name of the Kruize DB
   name: kruizeDB
+  ## @param db.volumeMountPath Volume mount path for database data
+  volumeMountPath: "/var/lib/pgsql/data"
+  ## @param db.pgData PGDATA environment variable value
+  pgData: "/var/lib/pg_data"
   sslMode: require
 
 # Kruize UI Configuration
@@ -190,3 +196,7 @@ fullnameOverride: ""
 monitoring:
   enabled: true
   interval: 30s
+
+networkPolicy:
+  ## @param networkPolicy.enabled Enable NetworkPolicy resources
+  enabled: false
