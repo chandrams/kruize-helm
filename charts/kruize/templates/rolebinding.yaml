@@ -3,7 +3,9 @@
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: {{ $fullName }}-recommendation-updater-crb
+  name: {{ $fullName }}-recommendation-updater-crb-{{ .Release.Namespace }}
+  labels:
+    {{- include "kruize.labels" . | nindent 4 }}
 subjects:
   - kind: ServiceAccount
     name: {{ include "kruize.serviceAccountName" . }}
@@ -11,13 +13,15 @@ subjects:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ $fullName }}-recommendation-updater
+  name: {{ $fullName }}-recommendation-updater-{{ .Release.Namespace }}
 ---
 {{- if .Values.rbac.create -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ $fullName }}-monitoring-view
+  name: {{ $fullName }}-monitoring-view-{{ .Release.Namespace }}
+  labels:
+    {{- include "kruize.labels" . | nindent 4 }}
 subjects:
   - kind: ServiceAccount
     name: {{ include "kruize.serviceAccountName" . }}
@@ -31,34 +35,40 @@ roleRef:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ $fullName }}-instaslices-access-binding
+  name: {{ $fullName }}-instaslices-access-binding-{{ .Release.Namespace }}
+  labels:
+    {{- include "kruize.labels" . | nindent 4 }}
 subjects:
   - kind: ServiceAccount
     name: {{ include "kruize.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 roleRef:
   kind: ClusterRole
-  name: {{ $fullName }}-instaslices-access
+  name: {{ $fullName }}-instaslices-access-{{ .Release.Namespace }}
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ $fullName }}-edit-ko-binding
+  name: {{ $fullName }}-edit-ko-binding-{{ .Release.Namespace }}
+  labels:
+    {{- include "kruize.labels" . | nindent 4 }}
 subjects:
   - kind: ServiceAccount
     name: {{ include "kruize.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 roleRef:
   kind: ClusterRole
-  name: {{ $fullName }}-edit-ko
+  name: {{ $fullName }}-edit-ko-{{ .Release.Namespace }}
   apiGroup: rbac.authorization.k8s.io
 ---
 {{- if .Values.rbac.create -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ $fullName }}-autotune-scc-crb
+  name: {{ $fullName }}-autotune-scc-crb-{{ .Release.Namespace }}
+  labels:
+    {{- include "kruize.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

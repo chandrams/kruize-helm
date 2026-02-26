@@ -138,8 +138,11 @@ db:
       ## @param db.resources.limits.cpu CPU resource limit for the Kruize DB container
       cpu: "0.5"
   pvc:
-    storageClass: manual
+    ## @param db.pvc.storageClass Storage class of the persistent volume
+    storageClass: "manual"
+    ## @param db.pvc.storageSize Size of the persistent volume
     storageSize: "500Mi"
+    ## @param db.pvc.hostPath Host path for static PV
     hostPath: "/mnt/data"
   ## @param db.user User for Kruize DB container
   user: admin

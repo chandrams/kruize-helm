@@ -3,10 +3,12 @@
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: {{ $fullName }}-db-pv-volume
+  name: {{ $fullName }}-db-pv-volume-{{ .Release.Namespace }}
   labels:
     type: local
     app: {{ $fullName }}-db
+    release: {{ .Release.Name }}
+    namespace: {{ .Release.Namespace }}
 
 spec:
   storageClassName: {{ .Values.db.pvc.storageClass | quote }}
@@ -15,4 +17,4 @@ spec:
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: {{ printf "%s/%s" .Values.db.pvc.hostPath $fullName | quote }}
+    path: {{ printf "%s/%s-%s" .Values.db.pvc.hostPath $fullName .Release.Namespace | quote }}

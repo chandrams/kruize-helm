@@ -3,7 +3,9 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ $fullName }}-recommendation-updater
+  name: {{ $fullName }}-recommendation-updater-{{ .Release.Namespace }}
+  labels:
+    {{- include "kruize.labels" . | nindent 4 }}
 rules:
   - apiGroups:
       - ""
@@ -42,7 +44,9 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ $fullName }}-edit-ko
+  name: {{ $fullName }}-edit-ko-{{ .Release.Namespace }}
+  labels:
+    {{- include "kruize.labels" . | nindent 4 }}
 rules:
   - apiGroups: [ "apps" ]
     resources: [ "deployments", "statefulsets", "daemonsets" ]
@@ -57,7 +61,9 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ $fullName }}-instaslices-access
+  name: {{ $fullName }}-instaslices-access-{{ .Release.Namespace }}
+  labels:
+    {{- include "kruize.labels" . | nindent 4 }}
 rules:
   - apiGroups: [ "inference.redhat.com" ]
     resources: [ "instaslices" ]
