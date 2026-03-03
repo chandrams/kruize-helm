@@ -5,6 +5,8 @@ kind: Deployment
 metadata:
   name: {{ include "kruize.deploymentName" . }}
   namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ $fullName }}
 spec:
   replicas: {{ .Values.kruize.replicaCount | default 1 }}
   selector:
@@ -14,6 +16,7 @@ spec:
     metadata:
       labels:
         {{- include "kruize.selectorLabels" . | nindent 8 }}
+        app: {{ $fullName }}
     spec:
       serviceAccountName: {{ include "kruize.serviceAccountName" . }}
       initContainers:

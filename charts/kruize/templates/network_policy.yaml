@@ -19,6 +19,7 @@ spec:
         - podSelector:
             matchLabels:
               {{- include "kruize.selectorLabels" . | nindent 14 }}
+              app: {{ $fullName }}
       ports:
         - protocol: TCP
           port: 9090

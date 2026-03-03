@@ -6,15 +6,18 @@ metadata:
   name: {{ include "kruize.deploymentName" . }}-db
   namespace: {{ .Release.Namespace }}
   labels:
+    {{- include "kruize.labels" . | nindent 4 }}
     app: {{ $fullName }}-db
 spec:
   replicas: 1
   selector:
     matchLabels:
+      {{- include "kruize.selectorLabels" . | nindent 6 }}
       app: {{ $fullName }}-db
   template:
     metadata:
       labels:
+	{{- include "kruize.selectorLabels" . | nindent 8 }}
         app: {{ $fullName }}-db
     spec:
       serviceAccountName: {{ include "kruize.serviceAccountName" . }}

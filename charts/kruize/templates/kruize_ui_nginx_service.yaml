@@ -5,6 +5,8 @@ kind: Service
 metadata:
   name: {{ $fullName }}-ui-nginx-service
   namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ $fullName }}-ui-nginx
 spec:
   type: {{ .Values.kruizeUI.service.type }}
   ports:
@@ -12,4 +14,4 @@ spec:
       port: {{ .Values.kruizeUI.service.port }}
       targetPort: {{ .Values.kruizeUI.service.port }}
   selector:
-    app: kruize-ui-nginx
+    app: {{ $fullName }}-ui-nginx

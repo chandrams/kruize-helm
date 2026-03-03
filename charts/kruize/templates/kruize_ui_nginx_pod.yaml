@@ -6,7 +6,7 @@ metadata:
   name: {{ $fullName }}-ui-nginx-pod
   namespace: {{ .Release.Namespace }}
   labels:
-    app: kruize-ui-nginx
+    app: {{ $fullName }}-ui-nginx
 spec:
   containers:
     - name: kruize-ui-nginx-container

@@ -10,10 +10,12 @@ metadata:
     prometheus.io/path: '/metrics'
   labels:
     {{- include "kruize.labels" . | nindent 4 }}
+    app: {{ $fullName }}
 spec:
   type: {{ .Values.kruize.service.type }}
   selector:
     {{- include "kruize.selectorLabels" . | nindent 4 }}
+    app: {{ $fullName }}
   ports:
     - name: kruize-port
       port: {{ .Values.kruize.service.port }}
