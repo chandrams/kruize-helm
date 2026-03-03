@@ -1,0 +1,211 @@
+suite: test RBAC resources
+templates:
+  - service_account.yaml
+  - role.yaml
+  - rolebinding.yaml
+
+tests:
+  - it: should not create ServiceAccount when disabled
+    template: service_account.yaml
+    set:
+      serviceAccount.create: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create a ServiceAccount with the correct default settings
+    template: service_account.yaml
+    set:
+      serviceAccount.create: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: ServiceAccount
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize
+      - equal:
+          path: metadata.labels
+          value:
+            helm.sh/chart: kruize-0.1.0
+            app.kubernetes.io/name: kruize
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/version: "0.8.1"
+            app.kubernetes.io/managed-by: Helm
+
+  - it: should use custom ServiceAccount name when specified
+    template: service_account.yaml
+    set:
+      serviceAccount.create: true
+      serviceAccount.name: custom-sa
+    asserts:
+      - equal:
+          path: metadata.name
+          value: custom-sa
+
+  - it: should create recommendation-updater ClusterRole with correct rules
+    template: role.yaml
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRole
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-recommendation-updater
+      - contains:
+          path: rules
+          content:
+            apiGroups: [""]
+            resources: ["pods", "customresourcedefinitions"]
+            verbs: ["*"]
+      - contains:
+          path: rules
+          content:
+            apiGroups: ["apps"]
+            resources: ["deployments"]
+            verbs: ["*"]
+
+  - it: should create edit-ko ClusterRole with correct rules
+    template: role.yaml
+    documentIndex: 1
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRole
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-edit-ko
+      - contains:
+          path: rules
+          content:
+            apiGroups: ["apps"]
+            resources: ["deployments", "statefulsets", "daemonsets"]
+            verbs: ["get", "list", "patch", "update"]
+      - contains:
+          path: rules
+          content:
+            apiGroups: ["batch"]
+            resources: ["jobs"]
+            verbs: ["get", "list", "create", "delete"]
+
+  - it: should create instaslices-access ClusterRole with correct rules
+    template: role.yaml
+    documentIndex: 2
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRole
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-instaslices-access
+      - contains:
+          path: rules
+          content:
+            apiGroups: ["inference.redhat.com"]
+            resources: ["instaslices"]
+            verbs: ["get", "list", "watch"]
+
+  - it: should create recommendation-updater ClusterRoleBinding with correct settings
+    template: rolebinding.yaml
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRoleBinding
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-recommendation-updater-crb
+      - equal:
+          path: subjects[0].kind
+          value: ServiceAccount
+      - equal:
+          path: subjects[0].name
+          value: RELEASE-NAME-kruize
+      - equal:
+          path: roleRef.kind
+          value: ClusterRole
+      - equal:
+          path: roleRef.name
+          value: RELEASE-NAME-kruize-recommendation-updater
+
+  - it: should create monitoring-view ClusterRoleBinding when rbac.create is true
+    template: rolebinding.yaml
+    documentIndex: 1
+    set:
+      rbac.create: true
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRoleBinding
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-monitoring-view
+      - equal:
+          path: roleRef.name
+          value: cluster-monitoring-view
+
+  - it: should not create monitoring-view ClusterRoleBinding when rbac.create is false
+    template: rolebinding.yaml
+    set:
+      rbac.create: false
+    asserts:
+      - hasDocuments:
+          count: 3
+
+  - it: should create instaslices-access ClusterRoleBinding with correct settings
+    template: rolebinding.yaml
+    documentIndex: 2
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRoleBinding
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-instaslices-access-binding
+      - equal:
+          path: roleRef.name
+          value: RELEASE-NAME-kruize-instaslices-access
+
+  - it: should create edit-ko ClusterRoleBinding with correct settings
+    template: rolebinding.yaml
+    documentIndex: 3
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRoleBinding
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-edit-ko-binding
+      - equal:
+          path: roleRef.name
+          value: RELEASE-NAME-kruize-edit-ko
+
+  - it: should create OpenShift SCC ClusterRoleBinding when rbac.create is true
+    template: rolebinding.yaml
+    documentIndex: 4
+    set:
+      rbac.create: true
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRoleBinding
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-autotune-scc-crb
+      - equal:
+          path: roleRef.name
+          value: system:openshift:scc:anyuid
+
+  - it: should not create OpenShift SCC ClusterRoleBinding when rbac.create is false
+    template: rolebinding.yaml
+    set:
+      rbac.create: false
+    asserts:
+      - hasDocuments:
+          count: 3
+
+
+# Made by Bob

@@ -1,0 +1,108 @@
+suite: test cronjobs.yaml (minikube)
+templates:
+  - cronjobs.yaml
+values:
+  - ../../values-minikube.yaml
+
+tests:
+  - it: should create two CronJob documents
+    asserts:
+      - hasDocuments:
+          count: 2
+
+  - it: should create a create-partition CronJob with the correct default settings
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: kind
+          value: CronJob
+      - equal:
+          path: apiVersion
+          value: batch/v1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-create-partition
+      - equal:
+          path: spec.schedule
+          value: "0 0 25 * *"
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].name
+          value: kruize-cron-create
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].image
+          value: "quay.io/kruize/autotune_operator:0.8.1"
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].imagePullPolicy
+          value: Always
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].volumeMounts[0].name
+          value: config-volume
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].volumeMounts[0].mountPath
+          value: /etc/config
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.restartPolicy
+          value: OnFailure
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.volumes[0].configMap.name
+          value: RELEASE-NAME-kruize-config
+
+  - it: should create a delete-partition CronJob with the correct default settings
+    documentIndex: 1
+    asserts:
+      - equal:
+          path: kind
+          value: CronJob
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-delete-partition
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].name
+          value: kruize-cron-delete
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].image
+          value: "quay.io/kruize/autotune_operator:0.8.1"
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[0].env
+          content:
+            name: deletepartitionsthreshold
+            value: "15"
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.restartPolicy
+          value: OnFailure
+
+  - it: should create CronJobs with the correct settings overrides
+    documentIndex: 0
+    set:
+      cronJob.createSchedule: "0 0 1 * *"
+      kruize.image.tag: "0.9.0"
+    asserts:
+      - equal:
+          path: spec.schedule
+          value: "0 0 1 * *"
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.containers[0].image
+          value: "quay.io/kruize/autotune_operator:0.9.0"
+
+  - it: should use custom deletePartitionsThreshold when specified
+    documentIndex: 1
+    set:
+      cronJob.deletePartitionsThreshold: "30"
+    asserts:
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.containers[0].env
+          content:
+            name: deletepartitionsthreshold
+            value: "30"
+
+  - it: should create CronJobs in the release namespace
+    documentIndex: 0
+    release:
+      namespace: custom-namespace
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: custom-namespace
+
+
+# Made by Bob

@@ -1,0 +1,66 @@
+suite: test kruize_db_service.yaml (minikube)
+templates:
+  - kruize_db_service.yaml
+values:
+  - ../../values-minikube.yaml
+
+tests:
+  - it: should create a Service with the correct default settings
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: Service
+      - equal:
+          path: apiVersion
+          value: v1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-db-service
+      - equal:
+          path: metadata.labels.app
+          value: RELEASE-NAME-kruize-db
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports[0].name
+          value: kruize-db-port
+      - equal:
+          path: spec.ports[0].port
+          value: 5432
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 5432
+      - equal:
+          path: spec.selector.app
+          value: RELEASE-NAME-kruize-db
+
+  - it: should create a Service with the correct settings overrides
+    set:
+      db.service.type: NodePort
+      db.service.port: 5433
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: spec.type
+          value: NodePort
+      - equal:
+          path: spec.ports[0].port
+          value: 5433
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 5433
+
+  - it: should create a Service in the release namespace
+    release:
+      namespace: custom-namespace
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: custom-namespace
+
+
+# Made by Bob

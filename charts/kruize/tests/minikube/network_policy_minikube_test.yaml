@@ -1,0 +1,64 @@
+suite: test network_policy.yaml (minikube)
+templates:
+  - network_policy.yaml
+values:
+  - ../../values-minikube.yaml
+
+tests:
+  - it: should create NetworkPolicy when enabled in minikube
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: NetworkPolicy
+      - equal:
+          path: apiVersion
+          value: networking.k8s.io/v1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-to-prometheus
+      - equal:
+          path: metadata.labels
+          value:
+            helm.sh/chart: kruize-0.1.0
+            app.kubernetes.io/name: kruize
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/version: "0.8.1"
+            app.kubernetes.io/managed-by: Helm
+      - equal:
+          path: spec.podSelector.matchLabels
+          value:
+            app.kubernetes.io/name: prometheus
+      - equal:
+          path: spec.policyTypes[0]
+          value: Ingress
+      - equal:
+          path: spec.ingress[0].from[0].podSelector.matchLabels
+          value:
+            app.kubernetes.io/name: kruize
+            app.kubernetes.io/instance: RELEASE-NAME
+      - equal:
+          path: spec.ingress[0].ports[0].protocol
+          value: TCP
+      - equal:
+          path: spec.ingress[0].ports[0].port
+          value: 9090
+
+  - it: should not create NetworkPolicy when disabled
+    set:
+      networkPolicy.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create a NetworkPolicy in the release namespace
+    release:
+      namespace: custom-namespace
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: custom-namespace
+
+
+# Made by Bob

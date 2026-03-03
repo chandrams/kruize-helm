@@ -1,0 +1,64 @@
+suite: test configmap templates (minikube)
+templates:
+  - configmap_kruize.yaml
+  - configmap_nginx.yaml
+values:
+  - ../../values-minikube.yaml
+
+tests:
+  - it: should create a kruize ConfigMap with the correct default settings
+    template: configmap_kruize.yaml
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: ConfigMap
+      - equal:
+          path: apiVersion
+          value: v1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-config
+      - exists:
+          path: data.dbconfigjson
+      - exists:
+          path: data.kruizeconfigjson
+
+  - it: should create a kruize ConfigMap in the release namespace
+    template: configmap_kruize.yaml
+    release:
+      namespace: custom-namespace
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: custom-namespace
+
+  - it: should create a nginx ConfigMap with the correct default settings
+    template: configmap_nginx.yaml
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: ConfigMap
+      - equal:
+          path: apiVersion
+          value: v1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-nginx-config
+      - exists:
+          path: data["nginx.conf"]
+
+  - it: should create a nginx ConfigMap in the release namespace
+    template: configmap_nginx.yaml
+    release:
+      namespace: custom-namespace
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: custom-namespace
+
+
+# Made by Bob

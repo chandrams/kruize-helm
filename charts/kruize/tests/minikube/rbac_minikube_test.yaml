@@ -1,0 +1,159 @@
+suite: test RBAC resources (minikube)
+templates:
+  - service_account.yaml
+  - role.yaml
+  - rolebinding.yaml
+values:
+  - ../../values-minikube.yaml
+
+tests:
+  - it: should not create ServiceAccount when serviceAccount.create is false
+    template: service_account.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create recommendation-updater ClusterRole with correct rules
+    template: role.yaml
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRole
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-recommendation-updater
+      - contains:
+          path: rules
+          content:
+            apiGroups: [""]
+            resources: ["pods", "customresourcedefinitions"]
+            verbs: ["*"]
+      - contains:
+          path: rules
+          content:
+            apiGroups: ["apps"]
+            resources: ["deployments"]
+            verbs: ["*"]
+
+  - it: should create edit-ko ClusterRole with correct rules
+    template: role.yaml
+    documentIndex: 1
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRole
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-edit-ko
+      - contains:
+          path: rules
+          content:
+            apiGroups: ["apps"]
+            resources: ["deployments", "statefulsets", "daemonsets"]
+            verbs: ["get", "list", "patch", "update"]
+      - contains:
+          path: rules
+          content:
+            apiGroups: ["batch"]
+            resources: ["jobs"]
+            verbs: ["get", "list", "create", "delete"]
+
+  - it: should create instaslices-access ClusterRole with correct rules
+    template: role.yaml
+    documentIndex: 2
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRole
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-instaslices-access
+      - contains:
+          path: rules
+          content:
+            apiGroups: ["inference.redhat.com"]
+            resources: ["instaslices"]
+            verbs: ["get", "list", "watch"]
+
+  - it: should not create monitoring-view and SCC ClusterRoleBindings when rbac.create is false
+    template: rolebinding.yaml
+    asserts:
+      - hasDocuments:
+          count: 3
+
+  - it: should not create monitoring-view ClusterRoleBinding in minikube
+    template: rolebinding.yaml
+    documentIndex: 0
+    asserts:
+      - notEqual:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-monitoring-view
+
+  - it: should not create OpenShift SCC ClusterRoleBinding in minikube
+    template: rolebinding.yaml
+    documentIndex: 0
+    asserts:
+      - notEqual:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-autotune-scc-crb
+
+  - it: should create recommendation-updater ClusterRoleBinding with correct settings
+    template: rolebinding.yaml
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRoleBinding
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-recommendation-updater-crb
+      - equal:
+          path: subjects[0].kind
+          value: ServiceAccount
+      - equal:
+          path: subjects[0].name
+          value: default
+      - equal:
+          path: roleRef.kind
+          value: ClusterRole
+      - equal:
+          path: roleRef.name
+          value: RELEASE-NAME-kruize-recommendation-updater
+
+  - it: should create instaslices-access ClusterRoleBinding with correct settings
+    template: rolebinding.yaml
+    documentIndex: 1
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRoleBinding
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-instaslices-access-binding
+      - equal:
+          path: subjects[0].name
+          value: default
+      - equal:
+          path: roleRef.name
+          value: RELEASE-NAME-kruize-instaslices-access
+
+  - it: should create edit-ko ClusterRoleBinding with correct settings
+    template: rolebinding.yaml
+    documentIndex: 2
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRoleBinding
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-edit-ko-binding
+      - equal:
+          path: subjects[0].name
+          value: default
+      - equal:
+          path: roleRef.name
+          value: RELEASE-NAME-kruize-edit-ko
+
+
+# Made by Bob

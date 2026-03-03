@@ -1,0 +1,132 @@
+suite: test kruize UI templates
+templates:
+  - kruize_ui_nginx_pod.yaml
+  - kruize_ui_nginx_service.yaml
+
+tests:
+  - it: should create a UI nginx Pod with the correct default settings
+    template: kruize_ui_nginx_pod.yaml
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: Pod
+      - equal:
+          path: apiVersion
+          value: v1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-ui-nginx-pod
+      - equal:
+          path: metadata.labels.app
+          value: RELEASE-NAME-kruize-ui-nginx
+      - equal:
+          path: spec.containers[0].name
+          value: kruize-ui-nginx-container
+      - equal:
+          path: spec.containers[0].image
+          value: "quay.io/kruize/kruize-ui:0.0.8"
+      - equal:
+          path: spec.containers[0].imagePullPolicy
+          value: Always
+      - contains:
+          path: spec.containers[0].env
+          content:
+            name: KRUIZE_UI_ENV
+            value: "production"
+      - equal:
+          path: spec.containers[0].volumeMounts[0].name
+          value: nginx-config-volume
+      - equal:
+          path: spec.containers[0].volumeMounts[0].mountPath
+          value: /etc/nginx/nginx.conf
+      - equal:
+          path: spec.containers[0].volumeMounts[0].subPath
+          value: nginx.conf
+      - equal:
+          path: spec.volumes[0].name
+          value: nginx-config-volume
+      - equal:
+          path: spec.volumes[0].configMap.name
+          value: RELEASE-NAME-kruize-nginx-config
+
+  - it: should create a UI nginx Pod with the correct settings overrides
+    template: kruize_ui_nginx_pod.yaml
+    set:
+      kruizeUI.image.tag: "0.1.0"
+      kruizeUI.image.pullPolicy: IfNotPresent
+    asserts:
+      - equal:
+          path: spec.containers[0].image
+          value: "quay.io/kruize/kruize-ui:0.1.0"
+      - equal:
+          path: spec.containers[0].imagePullPolicy
+          value: IfNotPresent
+
+  - it: should create a UI nginx Pod in the release namespace
+    template: kruize_ui_nginx_pod.yaml
+    release:
+      namespace: custom-namespace
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: custom-namespace
+
+  - it: should create a UI nginx Service with the correct default settings
+    template: kruize_ui_nginx_service.yaml
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: Service
+      - equal:
+          path: apiVersion
+          value: v1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-ui-nginx-service
+      - equal:
+          path: spec.type
+          value: NodePort
+      - equal:
+          path: spec.ports[0].name
+          value: http
+      - equal:
+          path: spec.ports[0].port
+          value: 8080
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 8080
+      - equal:
+          path: spec.selector.app
+          value: RELEASE-NAME-kruize-ui-nginx
+
+  - it: should create a UI nginx Service with the correct settings overrides
+    template: kruize_ui_nginx_service.yaml
+    set:
+      kruizeUI.service.type: ClusterIP
+      kruizeUI.service.port: 9090
+    asserts:
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports[0].port
+          value: 9090
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 9090
+
+  - it: should create a UI nginx Service in the release namespace
+    template: kruize_ui_nginx_service.yaml
+    release:
+      namespace: custom-namespace
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: custom-namespace
+
+
+# Made by Bob

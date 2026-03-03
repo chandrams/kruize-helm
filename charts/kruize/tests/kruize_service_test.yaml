@@ -1,0 +1,78 @@
+suite: test kruize_service.yaml
+templates:
+  - kruize_service.yaml
+
+tests:
+  - it: should create a Service with the correct default settings
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: Service
+      - equal:
+          path: apiVersion
+          value: v1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize
+      - equal:
+          path: metadata.labels
+          value:
+            app: RELEASE-NAME-kruize
+            helm.sh/chart: kruize-0.1.0
+            app.kubernetes.io/name: kruize
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/version: "0.8.1"
+            app.kubernetes.io/managed-by: Helm
+      - equal:
+          path: metadata.annotations
+          value:
+            prometheus.io/scrape: 'true'
+            prometheus.io/path: '/metrics'
+      - equal:
+          path: spec.type
+          value: NodePort
+      - equal:
+          path: spec.selector
+          value:
+            app: RELEASE-NAME-kruize
+            app.kubernetes.io/name: kruize
+            app.kubernetes.io/instance: RELEASE-NAME
+      - equal:
+          path: spec.ports[0].name
+          value: kruize-port
+      - equal:
+          path: spec.ports[0].port
+          value: 8080
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 8080
+
+  - it: should create a Service with the correct settings overrides
+    set:
+      kruize.service.type: ClusterIP
+      kruize.service.port: 9090
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports[0].port
+          value: 9090
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 9090
+
+  - it: should create a Service in the release namespace
+    release:
+      namespace: custom-namespace
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: custom-namespace
+
+
+# Made by Bob

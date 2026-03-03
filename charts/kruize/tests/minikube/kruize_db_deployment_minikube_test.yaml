@@ -1,0 +1,43 @@
+suite: test kruize_db_deployment.yaml (minikube)
+templates:
+  - kruize_db_deployment.yaml
+values:
+  - ../../values-minikube.yaml
+
+tests:
+  - it: should create a Deployment with minikube-specific settings
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: Deployment
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize-db
+
+  - it: should use default service account when serviceAccount.create is false
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: default
+
+  - it: should not set PGDATA env var when pgData is empty
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[?(@.name=='kruize-db')].env[?(@.name=='PGDATA')]
+
+  - it: should use minikube volumeMountPath
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize-db')].volumeMounts[0].mountPath
+          value: "/var/lib/postgresql/data"
+
+  - it: should not set resource requests and limits when empty
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[?(@.name=='kruize-db')].resources
+
+
+# Made by Bob
+# Made by Bob

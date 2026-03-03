@@ -1,0 +1,148 @@
+suite: test kruize_deployment.yaml
+templates:
+  - kruize_deployment.yaml
+
+tests:
+  - it: should create a Deployment with the correct default settings
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: kind
+          value: Deployment
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-kruize
+      - equal:
+          path: spec.replicas
+          value: 1
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/name: kruize
+            app.kubernetes.io/instance: RELEASE-NAME
+      - equal:
+          path: spec.template.metadata.labels
+          value:
+            app: RELEASE-NAME-kruize
+            app.kubernetes.io/name: kruize
+            app.kubernetes.io/instance: RELEASE-NAME
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: RELEASE-NAME-kruize
+
+  - it: should validate init container for database wait
+    asserts:
+      - exists:
+          path: spec.template.spec.initContainers[?(@.name=='wait-for-kruize-db')]
+      - equal:
+          path: spec.template.spec.initContainers[?(@.name=='wait-for-kruize-db')].image
+          value: "quay.io/kruizehub/postgres:15.2"
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name=='wait-for-kruize-db')].command
+          content: "sh"
+      - contains:
+          path: spec.template.spec.initContainers[?(@.name=='wait-for-kruize-db')].command
+          content: "-c"
+
+  - it: should validate kruize container settings
+    asserts:
+      - exists:
+          path: spec.template.spec.containers[?(@.name=='kruize')]
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize')].image
+          value: "quay.io/kruize/autotune_operator:0.8.1"
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize')].imagePullPolicy
+          value: "Always"
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize')].ports[0].name
+          value: "kruize-port"
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize')].ports[0].containerPort
+          value: 8080
+
+  - it: should validate environment variables
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name=='kruize')].env
+          content:
+            name: LOGGING_LEVEL
+            value: "info"
+      - contains:
+          path: spec.template.spec.containers[?(@.name=='kruize')].env
+          content:
+            name: ROOT_LOGGING_LEVEL
+            value: "error"
+      - contains:
+          path: spec.template.spec.containers[?(@.name=='kruize')].env
+          content:
+            name: DB_CONFIG_FILE
+            value: "/etc/config/dbconfigjson"
+      - contains:
+          path: spec.template.spec.containers[?(@.name=='kruize')].env
+          content:
+            name: KRUIZE_CONFIG_FILE
+            value: "/etc/config/kruizeconfigjson"
+
+  - it: should validate resource settings
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize')].resources.requests.memory
+          value: "768Mi"
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize')].resources.requests.cpu
+          value: 0.7
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize')].resources.limits.memory
+          value: "768Mi"
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize')].resources.limits.cpu
+          value: 0.7
+
+  - it: should validate volume mounts and config volume
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize')].volumeMounts[0].name
+          value: "config-volume"
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize')].volumeMounts[0].mountPath
+          value: "/etc/config"
+      - equal:
+          path: spec.template.spec.volumes[0].name
+          value: "config-volume"
+      - equal:
+          path: spec.template.spec.volumes[0].configMap.name
+          value: "RELEASE-NAME-kruize-config"
+
+  - it: should create a Deployment with the correct settings overrides
+    set:
+      kruize.replicaCount: 3
+      kruize.image.tag: "0.9.0"
+      kruize.resources.requests.memory: "1Gi"
+      kruize.resources.requests.cpu: "1"
+      kruize.resources.limits.memory: "2Gi"
+      kruize.resources.limits.cpu: "2"
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize')].image
+          value: "quay.io/kruize/autotune_operator:0.9.0"
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize')].resources.requests.memory
+          value: "1Gi"
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize')].resources.requests.cpu
+          value: 1
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize')].resources.limits.memory
+          value: "2Gi"
+      - equal:
+          path: spec.template.spec.containers[?(@.name=='kruize')].resources.limits.cpu
+          value: 2
+
+
+# Made by Bob
+# Made by Bob
