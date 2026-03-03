@@ -15,5 +15,5 @@ spec:
       port: {{ .Values.db.service.port }}
       targetPort: {{ .Values.db.service.port }}
   selector:
-    {{- include "kruize.labels" . | nindent 4 }}
+    {{- include "kruize.selectorLabels" . | nindent 4 }}
     app: {{ $fullName }}-db
