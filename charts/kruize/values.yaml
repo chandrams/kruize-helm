@@ -153,6 +153,8 @@ db:
   adminPassword: admin
   ## @param db.name Name of the Kruize DB
   name: kruizeDB
+  ## @param db.includeReleaseNameInDbName Include release name in database name for multi-instance support
+  includeReleaseNameInDbName: false
   ## @param db.volumeMountPath Volume mount path for database data
   volumeMountPath: "/var/lib/pgsql/data"
   ## @param db.pgData PGDATA environment variable value

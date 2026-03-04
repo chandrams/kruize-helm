@@ -31,7 +31,7 @@ spec:
             - name: POSTGRES_USER
               value: {{ .Values.db.user | quote }}
             - name: POSTGRES_DB
-              value: {{ printf "%s-%s" .Values.db.name $fullName | quote }}
+              value: {{ if .Values.db.includeReleaseNameInDbName }}{{ printf "%s-%s" .Values.db.name $fullName | quote }}{{ else }}{{ .Values.db.name | quote }}{{ end }}
             {{- if .Values.db.pgData }}
             - name: PGDATA
               value: {{ .Values.db.pgData }}

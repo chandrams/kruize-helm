@@ -12,7 +12,7 @@ data:
         "adminPassword": {{ .Values.db.adminPassword | quote }},
         "adminUsername": {{ .Values.db.adminUser | quote }},
         "hostname": "{{ $fullName }}-db-service",
-        "name": {{ printf "%s-%s" .Values.db.name $fullName | quote }},
+        "name": {{ if .Values.db.includeReleaseNameInDbName }}{{ printf "%s-%s" .Values.db.name $fullName | quote }}{{ else }}{{ .Values.db.name | quote }}{{ end }},
         "password": {{ .Values.db.password | quote }},
         "port": {{ .Values.db.service.port | quote }},
         "sslMode": {{ .Values.db.sslMode | quote }},

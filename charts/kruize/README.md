@@ -155,6 +155,7 @@ The following table lists the configurable parameters of the Kruize chart and th
 | `db.adminUser` | Admin user for Kruize DB container | `admin` |
 | `db.adminPassword` | Admin password for Kruize DB container | `admin` |
 | `db.name` | Name of the Kruize DB | `kruizeDB` |
+| `db.includeReleaseNameInDbName` | Include release name in database name for multi-instance support | `false` |
 | `db.sslMode` | SSL mode for database connection | `require` |
 
 ### Kruize UI Parameters
