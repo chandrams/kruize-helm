@@ -62,10 +62,9 @@ Create the name of the service account to use.
 {{- end }}
 
 {{/*
-Get the name for managed deployments.
+Create the name of the deployment.
 */}}
 {{- define "kruize.deploymentName" -}}
-{{- $version := semver .Chart.AppVersion -}}
-{{- printf "%s-v%d" (include "kruize.fullname" .) $version.Major -}}
+{{- include "kruize.fullname" . -}}
 {{- end -}}
 
