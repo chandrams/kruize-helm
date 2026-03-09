@@ -1,0 +1,519 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Kruize Helm Chart Values",
+  "description": "Schema for Kruize Helm chart values",
+  "type": "object",
+  "properties": {
+    "kruize": {
+      "type": "object",
+      "description": "Configuration for the Kruize application",
+      "properties": {
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Repository for Kruize container image"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "enum": ["Always", "IfNotPresent", "Never"],
+              "description": "Image pull policy for the Kruize container image"
+            },
+            "tag": {
+              "type": "string",
+              "description": "Image tag for Kruize container"
+            }
+          },
+          "required": ["repository", "pullPolicy", "tag"]
+        },
+        "replicaCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Replica count for the Kruize container"
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "memory": {
+                  "type": "string",
+                  "description": "Memory resource request for the Kruize container"
+                },
+                "cpu": {
+                  "type": "string",
+                  "description": "CPU resource request for the Kruize container"
+                }
+              }
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "memory": {
+                  "type": "string",
+                  "description": "Memory resource limit for the Kruize container"
+                },
+                "cpu": {
+                  "type": "string",
+                  "description": "CPU resource limit for the Kruize container"
+                }
+              }
+            }
+          }
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+              "description": "Kruize service type"
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "description": "Kruize service port"
+            }
+          },
+          "required": ["type", "port"]
+        },
+        "env": {
+          "type": "array",
+          "description": "Environment variables for Kruize container",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": ["name", "value"]
+          }
+        },
+        "config": {
+          "type": "object",
+          "properties": {
+            "clusterType": {
+              "type": "string",
+              "enum": ["kubernetes", "openshift"]
+            },
+            "k8sType": {
+              "type": "string",
+              "enum": ["openshift", "minikube", "kubernetes"]
+            },
+            "authType": {
+              "type": "string"
+            },
+            "monitoringAgent": {
+              "type": "string"
+            },
+            "monitoringService": {
+              "type": "string"
+            },
+            "monitoringEndPoint": {
+              "type": "string"
+            },
+            "saveToDB": {
+              "type": "string",
+              "enum": ["true", "false"]
+            },
+            "dbDriver": {
+              "type": "string"
+            },
+            "plots": {
+              "type": "string",
+              "enum": ["true", "false"]
+            },
+            "isROSEnabled": {
+              "type": "string",
+              "enum": ["true", "false"]
+            },
+            "local": {
+              "type": "string",
+              "enum": ["true", "false"]
+            },
+            "logAllHttpReqAndResp": {
+              "type": "string",
+              "enum": ["true", "false"]
+            },
+            "experimentNameFormat": {
+              "type": "string"
+            },
+            "bulkapilimit": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "isKafkaEnabled": {
+              "type": "string",
+              "enum": ["true", "false"]
+            },
+            "hibernate": {
+              "type": "object",
+              "properties": {
+                "dialect": {
+                  "type": "string"
+                },
+                "driver": {
+                  "type": "string"
+                },
+                "c3p0minsize": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "c3p0maxsize": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "c3p0timeout": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "c3p0maxstatements": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "hbm2ddlauto": {
+                  "type": "string"
+                },
+                "showsql": {
+                  "type": "string",
+                  "enum": ["true", "false"]
+                },
+                "timezone": {
+                  "type": "string"
+                }
+              }
+            },
+            "logging": {
+              "type": "object",
+              "properties": {
+                "cloudwatch": {
+                  "type": "object",
+                  "properties": {
+                    "accessKeyId": {
+                      "type": "string"
+                    },
+                    "logGroup": {
+                      "type": "string"
+                    },
+                    "logStream": {
+                      "type": "string"
+                    },
+                    "region": {
+                      "type": "string"
+                    },
+                    "secretAccessKey": {
+                      "type": "string"
+                    },
+                    "logLevel": {
+                      "type": "string",
+                      "enum": ["DEBUG", "INFO", "WARN", "ERROR"]
+                    }
+                  }
+                }
+              }
+            },
+            "datasource": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "provider": {
+                    "type": "string"
+                  },
+                  "serviceName": {
+                    "type": "string"
+                  },
+                  "namespace": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "authentication": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "credentials": {
+                        "type": "object",
+                        "properties": {
+                          "tokenFilePath": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": ["name", "provider"]
+              }
+            }
+          }
+        }
+      },
+      "required": ["image", "service"]
+    },
+    "cronJob": {
+      "type": "object",
+      "properties": {
+        "deletePartitionsThreshold": {
+          "type": "string"
+        },
+        "createSchedule": {
+          "type": "string",
+          "description": "Cron schedule expression"
+        }
+      }
+    },
+    "db": {
+      "type": "object",
+      "description": "Kruize DB configuration",
+      "properties": {
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Repository for Kruize DB container image"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "enum": ["Always", "IfNotPresent", "Never"],
+              "description": "Image pull policy for the Kruize DB container image"
+            },
+            "tag": {
+              "type": "string",
+              "description": "Image tag for Kruize DB container"
+            }
+          },
+          "required": ["repository", "pullPolicy", "tag"]
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Kruize DB service name"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+              "description": "Kruize DB service type"
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "description": "Kruize DB service port"
+            }
+          },
+          "required": ["name", "type", "port"]
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "memory": {
+                  "type": "string",
+                  "description": "Memory resource request for the Kruize DB container"
+                },
+                "cpu": {
+                  "type": "string",
+                  "description": "CPU resource request for the Kruize DB container"
+                }
+              }
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "memory": {
+                  "type": "string",
+                  "description": "Memory resource limit for the Kruize DB container"
+                },
+                "cpu": {
+                  "type": "string",
+                  "description": "CPU resource limit for the Kruize DB container"
+                }
+              }
+            }
+          }
+        },
+        "pvc": {
+          "type": "object",
+          "properties": {
+            "storageClass": {
+              "type": "string"
+            },
+            "storageSize": {
+              "type": "string"
+            },
+            "hostPath": {
+              "type": "string"
+            },
+            "accessModes": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["ReadWriteOnce", "ReadWriteMany", "ReadOnlyMany"]
+              }
+            },
+            "reclaimPolicy": {
+              "type": "string",
+              "enum": ["Retain", "Delete", "Recycle"]
+            }
+          }
+        },
+        "user": {
+          "type": "string",
+          "description": "User for Kruize DB container"
+        },
+        "password": {
+          "type": "string",
+          "description": "Password for Kruize DB container"
+        },
+        "adminUser": {
+          "type": "string",
+          "description": "Admin User for Kruize DB container"
+        },
+        "adminPassword": {
+          "type": "string",
+          "description": "Admin password for Kruize DB container"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the Kruize DB"
+        },
+        "includeReleaseNameInDbName": {
+          "type": "boolean",
+          "description": "Include release name in database name for multi-instance support"
+        },
+        "volumeMountPath": {
+          "type": "string",
+          "description": "Volume mount path for database data"
+        },
+        "pgData": {
+          "type": "string",
+          "description": "PGDATA environment variable value"
+        },
+        "sslMode": {
+          "type": "string",
+          "enum": ["disable", "allow", "prefer", "require", "verify-ca", "verify-full"]
+        }
+      },
+      "required": ["image", "service", "user", "password", "name"]
+    },
+    "kruizeUI": {
+      "type": "object",
+      "description": "Kruize UI Configuration",
+      "properties": {
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Repository for Kruize UI container image"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "enum": ["Always", "IfNotPresent", "Never"],
+              "description": "Image pull policy for the Kruize UI container image"
+            },
+            "tag": {
+              "type": "string",
+              "description": "Image tag for Kruize UI container"
+            }
+          },
+          "required": ["repository", "pullPolicy", "tag"]
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+              "description": "Kruize UI service type"
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "description": "Kruize UI service port"
+            }
+          },
+          "required": ["type", "port"]
+        }
+      },
+      "required": ["image", "service"]
+    },
+    "serviceAccount": {
+      "type": "object",
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "description": "Specifies whether a service account should be created"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the service account to use"
+        }
+      },
+      "required": ["create"]
+    },
+    "rbac": {
+      "type": "object",
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "description": "Specifies whether Openshift-specific RBAC resources should be created"
+        }
+      },
+      "required": ["create"]
+    },
+    "nameOverride": {
+      "type": "string",
+      "description": "Overrides the name of this Chart"
+    },
+    "fullnameOverride": {
+      "type": "string",
+      "description": "Overrides the fully qualified application name of [release name]-[chart name]"
+    },
+    "monitoring": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable monitoring with ServiceMonitor"
+        },
+        "interval": {
+          "type": "string",
+          "description": "Scrape interval for Prometheus"
+        }
+      },
+      "required": ["enabled"]
+    },
+    "networkPolicy": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable NetworkPolicy resources"
+        }
+      },
+      "required": ["enabled"]
+    }
+  },
+  "required": ["kruize", "db", "kruizeUI", "serviceAccount", "rbac"]
+}
