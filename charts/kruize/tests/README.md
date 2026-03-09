@@ -12,7 +12,7 @@ helm plugin install https://github.com/helm-unittest/helm-unittest
 
 ## Running Tests
 
-### Run All Tests (OpenShift/default values)
+### Run OpenShift (default) Tests
 
 ```bash
 helm unittest -f 'tests/*.yaml' charts/kruize
@@ -48,27 +48,46 @@ helm unittest -v charts/kruize
 helm unittest --output-type JUnit --output-file test-results.xml charts/kruize
 ```
 
-## Test Structure
+## Directory Structure
 
-```
-tests/
-├── configmap_test.yaml              # Tests for configmap_kruize.yaml and configmap_nginx.yaml
-├── cronjobs_test.yaml               # Tests for cronjobs.yaml
-├── kruize_db_deployment_test.yaml   # Tests for kruize_db_deployment.yaml
-├── kruize_db_service_test.yaml      # Tests for kruize_db_service.yaml
-├── kruize_deployment_test.yaml      # Tests for kruize_deployment.yaml
-├── kruize_service_test.yaml         # Tests for kruize_service.yaml
-├── kruize_ui_test.yaml              # Tests for kruize_ui_nginx_pod.yaml and kruize_ui_nginx_service.yaml
-├── network_policy_test.yaml         # Tests for network_policy.yaml
-├── rbac_test.yaml                   # Tests for service_account.yaml, role.yaml, rolebinding.yaml
-├── service_monitor_test.yaml        # Tests for service_monitor.yaml
-├── storage_test.yaml                # Tests for storage_pv.yaml and storage_pvc.yaml
-└── minikube/
-    ├── kruize_db_deployment_minikube_test.yaml  # DB deployment tests with values-minikube.yaml
-    ├── kruize_deployment_minikube_test.yaml     # Kruize deployment tests with values-minikube.yaml
-    ├── network_policy_minikube_test.yaml        # Network policy tests with values-minikube.yaml
-    ├── rbac_minikube_test.yaml                  # RBAC tests with values-minikube.yaml
-    └── storage_minikube_test.yaml               # Storage tests with values-minikube.yaml
+Tests are organized under the `tests/` directory, with each test file corresponding to a template in the `templates/` directory:
+
+```plaintext
+kruize-helm/
+├── charts
+│   └── kruize
+│       ├── Chart.yaml
+│       ├── templates
+│       │   ├── configmap_kruize.yaml
+│       │   ├── configmap_nginx.yaml
+│       │   ├── cronjobs.yaml
+│       │   ├── kruize_db_deployment.yaml
+│       │   ├── kruize_deployment.yaml
+│       │   ├── kruize_service.yaml
+│       │   ├── network_policy.yaml
+│       │   └── ...
+│       ├── tests
+│       │   ├── configmap_test.yaml
+│       │   ├── cronjobs_test.yaml
+│       │   ├── kruize_db_deployment_test.yaml
+│       │   ├── kruize_deployment_test.yaml
+│       │   ├── kruize_service_test.yaml
+│       │   ├── kruize_ui_test.yaml
+│       │   ├── network_policy_test.yaml
+│       │   ├── rbac_test.yaml
+│       │   ├── service_monitor_test.yaml
+│       │   ├── storage_test.yaml
+│       │   └── minikube/
+│       │       ├── configmap_minikube_test.yaml
+│       │       ├── kruize_deployment_minikube_test.yaml
+│       │       ├── kruize_service_minikube_test.yaml
+│       │       ├── kruize_ui_minikube_test.yaml
+│       │       ├── network_policy_minikube_test.yaml
+│       │       ├── service_monitor_minikube_test.yaml
+│       │       └── ...
+│       ├── values.schema.json
+│       └── values.yaml
+
 ```
 
 ## Environment-specific Tests
@@ -87,7 +106,7 @@ Tests in `tests/minikube/` use `values-minikube.yaml` on top of `values.yaml` vi
 
 ## Test File Structure
 
-Each test file follows the cryostat-helm style:
+Each test file follows the below style:
 
 ```yaml
 suite: test <template-name>
@@ -134,22 +153,6 @@ tests:
 - `hasDocuments` - Checks the number of documents in the output
 - `matchRegex` - Checks if a value matches a regex pattern
 
-## Continuous Integration
-
-```yaml
-# Example GitHub Actions workflow
-- name: Install Helm
-  uses: azure/setup-helm@v3
-
-- name: Install helm-unittest plugin
-  run: helm plugin install https://github.com/helm-unittest/helm-unittest
-
-- name: Run Helm tests (OpenShift)
-  run: helm unittest -f 'tests/*.yaml' charts/kruize
-
-- name: Run Helm tests (Minikube)
-  run: helm unittest -f 'tests/minikube/*.yaml' charts/kruize
-```
 
 ## Adding New Tests
 

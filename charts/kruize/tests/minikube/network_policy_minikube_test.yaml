@@ -36,6 +36,7 @@ tests:
       - equal:
           path: spec.ingress[0].from[0].podSelector.matchLabels
           value:
+            app: RELEASE-NAME-kruize
             app.kubernetes.io/name: kruize
             app.kubernetes.io/instance: RELEASE-NAME
       - equal:

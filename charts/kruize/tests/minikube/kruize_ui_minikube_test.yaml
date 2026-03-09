@@ -22,7 +22,7 @@ tests:
           value: RELEASE-NAME-kruize-ui-nginx-pod
       - equal:
           path: metadata.labels.app
-          value: kruize-ui-nginx
+          value: RELEASE-NAME-kruize-ui-nginx
       - equal:
           path: spec.containers[0].name
           value: kruize-ui-nginx-container
@@ -103,7 +103,7 @@ tests:
           value: 8080
       - equal:
           path: spec.selector.app
-          value: kruize-ui-nginx
+          value: RELEASE-NAME-kruize-ui-nginx
 
   - it: should create a UI nginx Service with the correct settings overrides
     template: kruize_ui_nginx_service.yaml

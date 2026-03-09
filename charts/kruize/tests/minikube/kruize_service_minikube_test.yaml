@@ -21,6 +21,7 @@ tests:
       - equal:
           path: metadata.labels
           value:
+            app: RELEASE-NAME-kruize
             helm.sh/chart: kruize-0.1.0
             app.kubernetes.io/name: kruize
             app.kubernetes.io/instance: RELEASE-NAME
@@ -37,6 +38,7 @@ tests:
       - equal:
           path: spec.selector
           value:
+            app: RELEASE-NAME-kruize
             app.kubernetes.io/name: kruize
             app.kubernetes.io/instance: RELEASE-NAME
       - equal:
