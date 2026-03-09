@@ -1,0 +1,135 @@
+# Integration Test Values for Kruize Helm Chart on Minikube
+# This file contains minimal resource requirements for integration testing on Minikube
+
+kruize:
+  image: 
+    repository: quay.io/kruize/autotune_operator
+    pullPolicy: IfNotPresent
+    tag: "0.8.1"
+  replicaCount: 1
+  resources:
+    requests:
+      memory: ""
+      cpu: ""
+    limits:
+      memory: ""
+      cpu: ""
+  service:
+    type: NodePort
+    port: 8080
+  
+  env:
+    - name: LOGGING_LEVEL
+      value: "info"
+    - name: ROOT_LOGGING_LEVEL
+      value: "error"
+    - name: DB_CONFIG_FILE
+      value: "/etc/config/dbconfigjson"
+    - name: KRUIZE_CONFIG_FILE
+      value: "/etc/config/kruizeconfigjson"
+    - name: JAVA_TOOL_OPTIONS
+      value: "-XX:MaxRAMPercentage=80"
+   
+  config:  
+    clusterType: "kubernetes"
+    k8sType: "minikube"
+    authType: ""
+    monitoringAgent: "prometheus"
+    monitoringService: "prometheus-k8s"
+    monitoringEndPoint: "prometheus-k8s"
+    saveToDB: "true"
+    dbDriver: "jdbc:postgresql://"
+    plots: "true"
+    isROSEnabled: "false"
+    local: "true"
+    logAllHttpReqAndResp: "false"
+    experimentNameFormat: "%datasource%|%clustername%|%namespace%|%workloadname%(%workloadtype%)|%containername%"
+    bulkapilimit: 1000
+    isKafkaEnabled: "false"
+    hibernate:
+      dialect: "org.hibernate.dialect.PostgreSQLDialect"
+      driver: "org.postgresql.Driver"
+      c3p0minsize: 5
+      c3p0maxsize: 10
+      c3p0timeout: 300
+      c3p0maxstatements: 100
+      hbm2ddlauto: "none"
+      showsql: "false"
+      timezone: "UTC"
+      
+    datasource: 
+      - name: "prometheus-1"
+        provider: "prometheus"
+        serviceName: "prometheus-k8s"
+        namespace: "monitoring"
+        url: ""
+        authentication: 
+          type: "bearer"
+          credentials:
+            tokenFilePath: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+cronJob:
+  deletePartitionsThreshold: "15"
+  createSchedule: "0 0 25 * *"
+
+# Kruize DB configuration
+db:
+  image: 
+    repository: quay.io/kruizehub/postgres
+    pullPolicy: IfNotPresent
+    tag: "15.2"
+  service:
+    name: kruize-db-service
+    type: ClusterIP
+    port: 5432
+  resources:   
+    requests:
+      memory: ""
+      cpu: ""
+    limits:
+      memory: ""
+      cpu: ""
+  pvc:
+    storageClass: "standard"
+    storageSize: "500Mi"
+    hostPath: ""
+    accessModes:
+      - ReadWriteOnce
+  user: admin
+  password: admin
+  adminUser: admin
+  adminPassword: admin
+  name: kruizeDB
+  includeReleaseNameInDbName: true
+  volumeMountPath: "/var/lib/postgresql/data"
+  pgData: ""
+  sslMode: disable
+
+# Kruize UI Configuration
+kruizeUI:
+  image:
+    repository: quay.io/kruize/kruize-ui
+    pullPolicy: IfNotPresent
+    tag: "0.0.8"
+  service:
+    type: NodePort
+    port: 8080
+
+serviceAccount:
+  create: false
+  name: "default"
+
+rbac:
+  create: false
+
+nameOverride: ""
+fullnameOverride: ""
+
+monitoring:
+  enabled: false
+  interval: 30s
+
+networkPolicy:
+  enabled: true
+
+# Made with Bob
