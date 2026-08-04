@@ -8,7 +8,7 @@ kruize:
     ## @param kruize.image.pullPolicy Image pull policy for the Kruize container image
     pullPolicy: Always
     ## @param kruize.image.tag Image tag for Kruize container
-    tag: "0.9"
+    tag: "0.11.1"
   ## @param kruize.replicaCount Replica count for the Kruize container
   replicaCount: 1
   resources:

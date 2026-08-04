@@ -2,7 +2,7 @@ apiVersion: v2
 name: kruize
 description: Optimize resources used by your containerized workloads
 
-appVersion: "0.9"
+appVersion: "0.11.1"
 home: "https://kruize.io"
 icon: "https://raw.githubusercontent.com/kruize/kruize-helm/main/docs/images/kruize-icon.png"
 

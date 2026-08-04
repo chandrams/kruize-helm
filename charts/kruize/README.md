@@ -67,7 +67,7 @@ The following table lists the configurable parameters of the Kruize chart and th
 |-----------|-------------|---------|
 | `kruize.image.repository` | Repository for Kruize container image | `quay.io/kruize/autotune_operator` |
 | `kruize.image.pullPolicy` | Image pull policy for the Kruize container image | `Always` |
-| `kruize.image.tag` | Image tag for Kruize container | `0.9` |
+| `kruize.image.tag` | Image tag for Kruize container | `0.11.1` |
 | `kruize.replicaCount` | Replica count for the Kruize container | `1` |
 | `kruize.resources.requests.memory` | Memory resource request for the Kruize container | `768Mi` |
 | `kruize.resources.requests.cpu` | CPU resource request for the Kruize container | `0.7` |

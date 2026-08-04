@@ -25,7 +25,7 @@ tests:
             helm.sh/chart: kruize-0.1.0
             app.kubernetes.io/name: kruize
             app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/version: "0.9"
+            app.kubernetes.io/version: "0.11.1"
             app.kubernetes.io/managed-by: Helm
       - equal:
           path: spec.selector.matchLabels

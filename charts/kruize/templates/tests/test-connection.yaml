@@ -10,55 +10,46 @@ metadata:
     "helm.sh/hook": test
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 spec:
-  serviceAccountName: "{{ $fullName }}-test"
+  # No custom serviceAccountName needed, satisfying default security policies
   containers:
     - name: test
       image: registry.access.redhat.com/ubi9/ubi-minimal:9.5
       command: ['sh', '-c']
       args:
         - |
-          echo "Installing required tools..."
-          microdnf install -y tar gzip
+          # Safely check if Values.service exists, otherwise default to port 8080
+          {{- $port := 8080 }}
+          {{- if .Values.service }}
+            {{- $port = .Values.service.port | default 8080 }}
+          {{- end }}
           
-          # Install kubectl
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x kubectl
-          mv kubectl /usr/local/bin/
+          # Internal Cluster DNS works identically on both Minikube and OpenShift
+          SVC_URL="http://{{ $fullName }}.{{ .Release.Namespace }}.svc.cluster.local:{{ $port }}/health"
           
-          echo "Getting service information..."
-          export NODE_PORT=$(kubectl get -n {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ $fullName }})
-          export NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}")
-          
-          echo "Service: {{ $fullName }}"
-          echo "Namespace: {{ .Release.Namespace }}"
-          echo "Node IP: $NODE_IP"
-          echo "Node Port: $NODE_PORT"
-          echo "Health endpoint: http://$NODE_IP:$NODE_PORT/health"
+          echo "Testing Kruize service health internally..."
+          echo "Target URL: $SVC_URL"
           echo ""
           
-          # Wait for service to be available and healthy
-          echo "Testing Kruize service health..."
           for i in $(seq 1 10); do
-            HEALTH_STATUS=$(curl -s http://$NODE_IP:$NODE_PORT/health || echo "ERROR")
-            echo "Attempt $i/10: Health status = $HEALTH_STATUS"
+            echo "Attempt $i/10..."
             
+            # Execute a clean curl request using the container's native binaries
+            HEALTH_STATUS=$(curl -s --connect-timeout 2 "$SVC_URL" || echo "ERROR")
+            echo "Response: $HEALTH_STATUS"
+            
+            # Check if the endpoint responds with the expected "UP" state
             if echo "$HEALTH_STATUS" | grep -q "UP"; then
               echo ""
-              echo "✓ Kruize service is UP and accessible at http://$NODE_IP:$NODE_PORT"
-              echo "✓ Health check passed: $HEALTH_STATUS"
+              echo "✓ Kruize service is UP and healthy!"
               exit 0
             fi
             
             if [ $i -lt 10 ]; then
-              echo "Waiting for Kruize service to be UP..."
-              sleep 2
+              echo "Waiting for service to stabilize..."
+              sleep 3
             fi
           done
           
-          echo ""
-          echo "✗ Kruize service health check failed after 20 seconds"
-          echo "✗ Last health status: $HEALTH_STATUS"
+          echo "✗ Health check timed out after 10 attempts."
           exit 1
   restartPolicy: Never
-
-

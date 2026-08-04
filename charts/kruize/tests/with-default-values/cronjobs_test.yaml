@@ -28,7 +28,7 @@ tests:
           value: kruize-cron-create
       - equal:
           path: spec.jobTemplate.spec.template.spec.containers[0].image
-          value: "quay.io/kruize/autotune_operator:0.9"
+          value: "quay.io/kruize/autotune_operator:0.11.1"
       - equal:
           path: spec.jobTemplate.spec.template.spec.containers[0].imagePullPolicy
           value: Always
@@ -59,7 +59,7 @@ tests:
           value: kruize-cron-delete
       - equal:
           path: spec.jobTemplate.spec.template.spec.containers[0].image
-          value: "quay.io/kruize/autotune_operator:0.9"
+          value: "quay.io/kruize/autotune_operator:0.11.1"
       - contains:
           path: spec.jobTemplate.spec.template.spec.containers[0].env
           content:
